@@ -56,7 +56,7 @@ createFadeInTween(removeCooldownBtn)
 -- Expand Hitbox Button
 local expandHitboxBtn = Instance.new("TextButton", Frame)
 expandHitboxBtn.Size = UDim2.new(1, -10, 0, 50)
-expandHitboxBtn.Position = UDim2.new(0, 5, 0, 105)
+expandHitboxBtn.Position = UDim2.new(0, 5, 0, 195)
 expandHitboxBtn.Text = "Increase Hitbox"
 expandHitboxBtn.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
 expandHitboxBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -128,7 +128,7 @@ end)
 -- Hitbox Adjuster Title
 local hitboxLabel = Instance.new("TextLabel", Frame)
 hitboxLabel.Size = UDim2.new(1, -10, 0, 25)
-hitboxLabel.Position = UDim2.new(0, 5, 0, 165)
+hitboxLabel.Position = UDim2.new(0, 5, 0, 110)
 hitboxLabel.Text = "Hitbox Size"
 hitboxLabel.BackgroundTransparency = 1
 hitboxLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -140,7 +140,7 @@ createFadeInTween(hitboxLabel)
 -- Hitbox Adjuster Controls
 local leftArrow = Instance.new("TextButton", Frame)
 leftArrow.Size = UDim2.new(0, 30, 0, 30)
-leftArrow.Position = UDim2.new(0, 5, 0, 195)
+leftArrow.Position = UDim2.new(0, 5, 0, 145)
 leftArrow.Text = "<"
 leftArrow.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
 leftArrow.TextColor3 = Color3.new(1, 1, 1)
@@ -148,7 +148,7 @@ leftArrow.BackgroundTransparency = 1
 
 local centerBox = Instance.new("TextBox", Frame)
 centerBox.Size = UDim2.new(0, 80, 0, 30)
-centerBox.Position = UDim2.new(0, 40, 0, 195)
+centerBox.Position = UDim2.new(0, 40, 0, 145)
 centerBox.Text = "1"
 centerBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 centerBox.TextColor3 = Color3.new(1, 1, 1)
@@ -159,7 +159,7 @@ centerBox.Font = Enum.Font.SourceSans
 
 local rightArrow = Instance.new("TextButton", Frame)
 rightArrow.Size = UDim2.new(0, 30, 0, 30)
-rightArrow.Position = UDim2.new(0, 125, 0, 195)
+rightArrow.Position = UDim2.new(0, 125, 0, 145)
 rightArrow.Text = ">"
 rightArrow.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
 rightArrow.TextColor3 = Color3.new(1, 1, 1)
@@ -167,7 +167,7 @@ rightArrow.BackgroundTransparency = 1
 
 local resetBtn = Instance.new("TextButton", Frame)
 resetBtn.Size = UDim2.new(0, 60, 0, 30)
-resetBtn.Position = UDim2.new(0, 165, 0, 195)
+resetBtn.Position = UDim2.new(0, 165, 0, 145)
 resetBtn.Text = "Reset"
 resetBtn.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
 resetBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -210,8 +210,8 @@ end)
 -- Cooldown Options Title
 local cooldownLabel = Instance.new("TextLabel", Frame)
 cooldownLabel.Size = UDim2.new(1, -10, 0, 25)
-cooldownLabel.Position = UDim2.new(0, 5, 0, 235)
-cooldownLabel.Text = "No Cooldown Options"
+cooldownLabel.Position = UDim2.new(0, 5, 0, 250)
+cooldownLabel.Text = "Cooldown Options"
 cooldownLabel.BackgroundTransparency = 1
 cooldownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 cooldownLabel.TextScaled = true
@@ -222,9 +222,9 @@ createFadeInTween(cooldownLabel)
 -- Cooldown Toggle Buttons
 local selectedCooldowns = {}
 local cooldownOptions = {
-	{ Name = "Moves", Y = 265 },
-	{ Name = "Dash", Y = 305 },
-	{ Name = "Ultimate", Y = 345 },
+	{ Name = "Moves", Y = 285 },
+	{ Name = "Dash", Y = 325 },
+	{ Name = "Ultimate", Y = 365 },
 }
 
 for _, opt in ipairs(cooldownOptions) do
@@ -252,4 +252,3 @@ for _, opt in ipairs(cooldownOptions) do
 		end
 	end)
 end
-
