@@ -10,7 +10,7 @@ Frame.Size = UDim2.new(0, 300, 0, 425)
 Frame.Position = UDim2.new(0.5, -150, 0.5, -90)
 Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 Frame.BorderSizePixel = 0
-Frame.BackgroundTransparency = 1
+Frame.BackgroundTransparency = 0.1
 
 local frameCorner = Instance.new("UICorner", Frame)
 frameCorner.CornerRadius = UDim.new(0, 10)
@@ -21,21 +21,46 @@ topBar.Size = UDim2.new(1, 0, 0, 30)
 topBar.Position = UDim2.new(0, 0, 0, 0)
 topBar.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
 topBar.BorderSizePixel = 0
-topBar.BackgroundTransparency = 1
+topBar.BackgroundTransparency = 0.1
 topBar.ZIndex = 2
 
 local topBarCorner = Instance.new("UICorner", topBar)
 topBarCorner.CornerRadius = UDim.new(0, 10)
 
--- Tween fade-in
+-- Title label
+local titleLabel = Instance.new("TextLabel", topBar)
+titleLabel.Size = UDim2.new(1, -40, 1, 0)
+titleLabel.Position = UDim2.new(0, 10, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "ghetto's JS gui"
+titleLabel.TextColor3 = Color3.new(1, 1, 1)
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextSize = 16
+titleLabel.ZIndex = 3
+titleLabel.BackgroundTransparency = 1
+
+-- Tween animations
 local fadeInTweenInfo = TweenInfo.new(0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local fadeOutTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
 local fadeInTweenGoal = { BackgroundTransparency = 0.10 }
+local fadeOutTweenGoal = { BackgroundTransparency = 1 }
 
 local function createFadeInTween(guiElement)
-	local tween = TweenService:Create(guiElement, fadeInTweenInfo, fadeInTweenGoal)
-	tween:Play()
+    local tween = TweenService:Create(guiElement, fadeInTweenInfo, fadeInTweenGoal)
+    tween:Play()
 end
 
+local function createFadeOutTween(guiElement, callback)
+    local tween = TweenService:Create(guiElement, fadeOutTweenInfo, fadeOutTweenGoal)
+    tween:Play()
+    if callback then
+        tween.Completed:Connect(callback)
+    end
+end
+
+-- Fade in elements
 createFadeInTween(Frame)
 createFadeInTween(topBar)
 
@@ -46,7 +71,9 @@ removeCooldownBtn.Position = UDim2.new(0, 5, 0, 50)
 removeCooldownBtn.Text = "Remove Cooldown"
 removeCooldownBtn.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
 removeCooldownBtn.TextColor3 = Color3.new(1, 1, 1)
-removeCooldownBtn.BackgroundTransparency = 1
+removeCooldownBtn.BackgroundTransparency = 0.1
+removeCooldownBtn.Font = Enum.Font.SourceSans
+removeCooldownBtn.TextSize = 18
 
 local removeCooldownBtnCorner = Instance.new("UICorner", removeCooldownBtn)
 removeCooldownBtnCorner.CornerRadius = UDim.new(0, 5)
@@ -60,7 +87,9 @@ expandHitboxBtn.Position = UDim2.new(0, 5, 0, 195)
 expandHitboxBtn.Text = "Increase Hitbox"
 expandHitboxBtn.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
 expandHitboxBtn.TextColor3 = Color3.new(1, 1, 1)
-expandHitboxBtn.BackgroundTransparency = 1
+expandHitboxBtn.BackgroundTransparency = 0.1
+expandHitboxBtn.Font = Enum.Font.SourceSans
+expandHitboxBtn.TextSize = 18
 
 local expandHitboxBtnCorner = Instance.new("UICorner", expandHitboxBtn)
 expandHitboxBtnCorner.CornerRadius = UDim.new(0, 5)
@@ -79,50 +108,65 @@ exitBtn.Font = Enum.Font.SourceSans
 exitBtn.ZIndex = 3
 
 exitBtn.MouseEnter:Connect(function()
-	exitBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+    exitBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
 end)
 
 exitBtn.MouseLeave:Connect(function()
-	exitBtn.TextColor3 = Color3.new(1, 1, 1)
+    exitBtn.TextColor3 = Color3.new(1, 1, 1)
 end)
 
 exitBtn.MouseButton1Click:Connect(function()
-	ScreenGui:Destroy()
+    -- Fade out animation before destroying
+    createFadeOutTween(Frame, function()
+        ScreenGui:Destroy()
+    end)
+    createFadeOutTween(topBar)
+    
+    -- Fade out all buttons
+    for _, child in pairs(Frame:GetChildren()) do
+        if child:IsA("TextButton") or child:IsA("TextLabel") or child:IsA("TextBox") then
+            createFadeOutTween(child)
+        end
+    end
+    
+    -- Wait for animations to complete
+    task.delay(0.5, function()
+        ScreenGui:Destroy()
+    end)
 end)
 
-local UserInputService = game:GetService("UserInputService")
-
+-- Dragging functionality
 local dragging
 local dragInput
 local dragStart
 local startPos
 
 Frame.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = Frame.Position
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = Frame.Position
 
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
 
-	if dragging and input == dragInput then
-		local delta = input.Position - dragStart
-		Frame.Position = UDim2.new(
-			startPos.X.Scale, startPos.X.Offset + delta.X,
-			startPos.Y.Scale, startPos.Y.Offset + delta.Y
-		)
-	end
+    if dragging and input == dragInput then
+        local delta = input.Position - dragStart
+        Frame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
 end)
 
 -- Hitbox Adjuster Title
@@ -144,18 +188,26 @@ leftArrow.Position = UDim2.new(0, 5, 0, 145)
 leftArrow.Text = "<"
 leftArrow.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
 leftArrow.TextColor3 = Color3.new(1, 1, 1)
-leftArrow.BackgroundTransparency = 1
+leftArrow.BackgroundTransparency = 0.1
+leftArrow.Font = Enum.Font.SourceSans
+leftArrow.TextSize = 20
+
+local leftArrowCorner = Instance.new("UICorner", leftArrow)
+leftArrowCorner.CornerRadius = UDim.new(0, 5)
 
 local centerBox = Instance.new("TextBox", Frame)
 centerBox.Size = UDim2.new(0, 80, 0, 30)
 centerBox.Position = UDim2.new(0, 40, 0, 145)
 centerBox.Text = "1"
-centerBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+centerBox.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
 centerBox.TextColor3 = Color3.new(1, 1, 1)
-centerBox.BackgroundTransparency = 0.2
+centerBox.BackgroundTransparency = 0.1
 centerBox.ClearTextOnFocus = false
 centerBox.TextScaled = true
 centerBox.Font = Enum.Font.SourceSans
+
+local centerBoxCorner = Instance.new("UICorner", centerBox)
+centerBoxCorner.CornerRadius = UDim.new(0, 5)
 
 local rightArrow = Instance.new("TextButton", Frame)
 rightArrow.Size = UDim2.new(0, 30, 0, 30)
@@ -163,7 +215,12 @@ rightArrow.Position = UDim2.new(0, 125, 0, 145)
 rightArrow.Text = ">"
 rightArrow.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
 rightArrow.TextColor3 = Color3.new(1, 1, 1)
-rightArrow.BackgroundTransparency = 1
+rightArrow.BackgroundTransparency = 0.1
+rightArrow.Font = Enum.Font.SourceSans
+rightArrow.TextSize = 20
+
+local rightArrowCorner = Instance.new("UICorner", rightArrow)
+rightArrowCorner.CornerRadius = UDim.new(0, 5)
 
 local resetBtn = Instance.new("TextButton", Frame)
 resetBtn.Size = UDim2.new(0, 60, 0, 30)
@@ -171,40 +228,45 @@ resetBtn.Position = UDim2.new(0, 165, 0, 145)
 resetBtn.Text = "Reset"
 resetBtn.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
 resetBtn.TextColor3 = Color3.new(1, 1, 1)
-resetBtn.BackgroundTransparency = 1
+resetBtn.BackgroundTransparency = 0.1
+resetBtn.Font = Enum.Font.SourceSans
+resetBtn.TextSize = 16
+
+local resetBtnCorner = Instance.new("UICorner", resetBtn)
+resetBtnCorner.CornerRadius = UDim.new(0, 5)
 
 for _, btn in pairs({leftArrow, centerBox, rightArrow, resetBtn}) do
-	createFadeInTween(btn)
+    createFadeInTween(btn)
 end
 
 -- Hitbox value logic
 local hitboxSize = 1
 local function updateHitboxBox()
-	centerBox.Text = tostring(hitboxSize)
+    centerBox.Text = tostring(hitboxSize)
 end
 
 leftArrow.MouseButton1Click:Connect(function()
-	hitboxSize = math.max(1, hitboxSize - 1)
-	updateHitboxBox()
+    hitboxSize = math.max(1, hitboxSize - 1)
+    updateHitboxBox()
 end)
 
 rightArrow.MouseButton1Click:Connect(function()
-	hitboxSize += 1
-	updateHitboxBox()
+    hitboxSize += 1
+    updateHitboxBox()
 end)
 
 resetBtn.MouseButton1Click:Connect(function()
-	hitboxSize = 1
-	updateHitboxBox()
+    hitboxSize = 1
+    updateHitboxBox()
 end)
 
 centerBox.FocusLost:Connect(function(enterPressed)
-	local val = tonumber(centerBox.Text)
-	if val and val >= 1 then
-		hitboxSize = math.floor(val)
-	else
-		centerBox.Text = tostring(hitboxSize)
-	end
+    local val = tonumber(centerBox.Text)
+    if val and val >= 1 then
+        hitboxSize = math.floor(val)
+    else
+        centerBox.Text = tostring(hitboxSize)
+    end
 end)
 
 -- Cooldown Options Title
@@ -222,33 +284,96 @@ createFadeInTween(cooldownLabel)
 -- Cooldown Toggle Buttons
 local selectedCooldowns = {}
 local cooldownOptions = {
-	{ Name = "Moves", Y = 285 },
-	{ Name = "Dash", Y = 325 },
-	{ Name = "Ultimate", Y = 365 },
+    { Name = "Moves", Y = 285 },
+    { Name = "Dash", Y = 325 },
+    { Name = "Ultimate", Y = 365 },
 }
 
 for _, opt in ipairs(cooldownOptions) do
-	local btn = Instance.new("TextButton", Frame)
-	btn.Name = opt.Name
-	btn.Size = UDim2.new(1, -10, 0, 35)
-	btn.Position = UDim2.new(0, 5, 0, opt.Y)
-	btn.Text = opt.Name
-	btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-	btn.TextColor3 = Color3.new(1, 1, 1)
-	btn.BackgroundTransparency = 0.2
+    local btn = Instance.new("TextButton", Frame)
+    btn.Name = opt.Name
+    btn.Size = UDim2.new(1, -10, 0, 35)
+    btn.Position = UDim2.new(0, 5, 0, opt.Y)
+    btn.Text = opt.Name
+    btn.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.BackgroundTransparency = 0.1
+    btn.Font = Enum.Font.SourceSans
+    btn.TextSize = 18
 
-	local corner = Instance.new("UICorner", btn)
-	corner.CornerRadius = UDim.new(0, 6)
+    local corner = Instance.new("UICorner", btn)
+    corner.CornerRadius = UDim.new(0, 6)
 
-	createFadeInTween(btn)
+    createFadeInTween(btn)
 
-	btn.MouseButton1Click:Connect(function()
-		if selectedCooldowns[opt.Name] then
-			selectedCooldowns[opt.Name] = nil
-			btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-		else
-			selectedCooldowns[opt.Name] = true
-			btn.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
-		end
-	end)
+    btn.MouseButton1Click:Connect(function()
+        if selectedCooldowns[opt.Name] then
+            selectedCooldowns[opt.Name] = nil
+            btn.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
+            local fadeTween = TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundTransparency = 0.1})
+            fadeTween:Play()
+        else
+            selectedCooldowns[opt.Name] = true
+            btn.BackgroundColor3 = Color3.fromRGB(85, 0, 0)
+            local solidTween = TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundTransparency = 0.1})
+            solidTween:Play()
+        end
+    end)
 end
+
+-- Button hover effects
+for _, obj in pairs(Frame:GetDescendants()) do
+    if obj:IsA("TextButton") and obj ~= exitBtn then
+        -- Create hover effect
+        obj.MouseEnter:Connect(function()
+            local brightTween = TweenService:Create(obj, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(120, 0, 0),
+                TextColor3 = Color3.fromRGB(255, 255, 255),
+                BackgroundTransparency = 0.1
+            })
+            brightTween:Play()
+        end)
+        
+        obj.MouseLeave:Connect(function()
+            local normalTween = TweenService:Create(obj, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(85, 0, 0),
+                TextColor3 = Color3.fromRGB(255, 255, 255),
+                BackgroundTransparency = 0.1
+            })
+            normalTween:Play()
+        end)
+    end
+end
+
+-- Button click effects
+for _, obj in pairs(Frame:GetDescendants()) do
+    if obj:IsA("TextButton") and obj ~= exitBtn then
+        obj.MouseButton1Down:Connect(function()
+            local clickTween = TweenService:Create(obj, TweenInfo.new(0.1), {
+                BackgroundColor3 = Color3.fromRGB(60, 0, 0),
+                BackgroundTransparency = 0.1
+            })
+            clickTween:Play()
+        end)
+        
+        obj.MouseButton1Up:Connect(function()
+            local releaseTween = TweenService:Create(obj, TweenInfo.new(0.1), {
+                BackgroundColor3 = Color3.fromRGB(120, 0, 0),
+                BackgroundTransparency = 0.1
+            })
+            releaseTween:Play()
+        end)
+    end
+end
+
+-- Implement remove cooldown functionality
+removeCooldownBtn.MouseButton1Click:Connect(function()
+    -- Add your cooldown removal logic here
+    -- This would be where you implement the actual functionality
+end)
+
+-- Implement expand hitbox functionality
+expandHitboxBtn.MouseButton1Click:Connect(function()
+    -- Add your hitbox expansion logic here
+    -- This would use the hitboxSize variable
+end)
